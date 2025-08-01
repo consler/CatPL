@@ -26,7 +26,7 @@ onStart:
     log("umm")
 
 onStart:
-    y= x +z
+    y= (x +z) /7
     log(y-1)
 """;
 

@@ -64,11 +64,26 @@ public class ParseExpression
 
         // System.out.println(expression_tokens);
 
-        if(isString) return parseString(expression_tokens);
-        else return parseArithmeticExpression(expression_tokens);
+        if(isString)
+        {
+            return parseString(expression_tokens);
+        }
+        else
+        {
+            float result = parseArithmeticExpression(expression_tokens);
+
+            if(result == (int) result)
+            {
+                return (int) result;
+            }
+            else
+            {
+                return result;
+            }
+        }
 
     }
-    public static int parseArithmeticExpression(List<Token> expression_tokens)
+    public static float parseArithmeticExpression(List<Token> expression_tokens)
     {
         Stack<Token> operator_stack = new Stack<>();
         List<Token> output = new ArrayList<>(); // Use List instead of Stack for output
@@ -297,16 +312,16 @@ public class ParseExpression
 
     }
 
-    public static int evaluateRPN(List<Token> rpnTokens)
+    public static float evaluateRPN(List<Token> rpnTokens)
     {
-        Stack<Integer> stack = new Stack<>();
+        Stack<Float> stack = new Stack<>();
 
         for (Token token : rpnTokens)
         {
             switch (token.getType())
             {
                 case INTEGER:
-                    stack.push(Integer.parseInt(token.getValue()));
+                    stack.push(Float.parseFloat(token.getValue()));
                     break;
                 case SYMBOL:
                     if (stack.size() < 2)
@@ -315,9 +330,9 @@ public class ParseExpression
 
                     }
 
-                    int right = stack.pop();
-                    int left = stack.pop();
-                    int result = switch (token.getValue())
+                    float right = stack.pop();
+                    float left = stack.pop();
+                    float result = switch (token.getValue())
                     {
                         case "+" -> left + right;
                         case "-" -> left - right;
