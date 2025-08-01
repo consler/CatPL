@@ -1,0 +1,196 @@
+package consler.catlanguage.parser;
+
+import consler.catlanguage.token.Token;
+import consler.catlanguage.token.TokenType;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+public class ParseExpression
+{
+    public static int parseArithmeticExpression(List<Token> expression_tokens)
+    {
+        Stack<Token> operator_stack = new Stack<>();
+        List<Token> output = new ArrayList<>(); // Use List instead of Stack for output
+
+        for (Token token : expression_tokens)
+        {
+            switch (token.getType())
+            {
+                case INTEGER -> output.add(token);
+                case SYMBOL ->
+                {
+                    if (token.getValue().equals("("))
+                    {
+                        operator_stack.push(token);
+
+                    }
+                    else if (token.getValue().equals(")"))
+                    {
+                        while (!operator_stack.isEmpty() && !operator_stack.peek().getValue().equals("("))
+                        {
+                            output.add(operator_stack.pop());
+
+                        }
+                        operator_stack.pop(); // Pop the left parenthesis
+
+                    }
+                    else
+                    {
+                        operator_stack = addOperator(operator_stack, output, token);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        // Pop all the operators from the stack
+        while (!operator_stack.isEmpty())
+        {
+            Token top = operator_stack.pop();
+            if (!top.getValue().equals("("))
+            { // Ensure we don't add the left parenthesis
+                output.add(top);
+
+            }
+
+        }
+
+        return evaluateRPN(output); // Return the output in postfix notation
+
+    }
+
+    public static boolean parseCondition(List<Token> condition_tokens)
+    {
+
+        return false;
+
+    }
+
+    public static String parseString(List<Token> string_tokens)
+    {
+        StringBuilder string = new StringBuilder();
+
+        for (int i = 0; i < string_tokens.size(); i++)
+        {
+            Token token = string_tokens.get(i);
+
+            if (token.getType() == TokenType.EVENT || token.getType() == TokenType.IDENTIFIER )
+            {
+                throw new RuntimeException("Line: " + token.getLine() +  ". Unexpected error: Event or identifier, when trying to concatenate a string");
+
+            }
+            else if (token.getType() == TokenType.SYMBOL)
+            {
+                if (token.getValue().equals("(") || token.getValue().equals(")"))
+                {
+                    continue;
+
+                }
+
+                if(!token.getValue().equals("+"))
+                {
+                    throw new RuntimeException("Line: " + token.getLine() +  ". Unexpected symbol, when trying to concatenate a string");
+
+                }
+
+                if (string_tokens.size() < i)
+                {
+                    throw new RuntimeException("Line: " + token.getLine() +  ". A string concatenation can't end with a +");
+
+                }
+
+            }
+            else if (token.getType() == TokenType.STRING || token.getType() == TokenType.INTEGER)
+            {
+                string.append(token.getValue());
+
+            }
+
+        }
+
+        return string.toString();
+
+
+    }
+
+    private static Stack<Token> addOperator(Stack<Token> operator_stack, List<Token> output, Token token)
+    {
+        while (!operator_stack.isEmpty() && precedence(operator_stack.peek()) >= precedence(token))
+        {
+            output.add(operator_stack.pop());
+
+        }
+        operator_stack.push(token);
+        return operator_stack;
+
+    }
+
+    private static int precedence(Token token)
+    {
+        return switch (token.getValue())
+        {
+            case "+", "-" -> 1;
+            case "*", "/" -> 2;
+            default -> 0; // Non-operators have the lowest precedence
+        };
+
+    }
+
+    public static int evaluateRPN(List<Token> rpnTokens)
+    {
+        Stack<Integer> stack = new Stack<>();
+
+        for (Token token : rpnTokens)
+        {
+            switch (token.getType())
+            {
+                case INTEGER:
+                    stack.push(Integer.parseInt(token.getValue()));
+                    break;
+                case SYMBOL:
+                    if (stack.size() < 2)
+                    {
+                        throw new RuntimeException("Invalid RPN expression: not enough operands for operator " + token.getValue());
+
+                    }
+
+                    int right = stack.pop();
+                    int left = stack.pop();
+                    int result = switch (token.getValue())
+                    {
+                        case "+" -> left + right;
+                        case "-" -> left - right;
+                        case "*" -> left * right;
+                        case "/" -> {
+                            if (right == 0)
+                            {
+                                throw new RuntimeException("Division by zero");
+                            }
+                            yield left / right;
+                        }
+                        default -> throw new RuntimeException("Line: " + token.getLine() + ". Unknown operator: " + token.getValue());
+                    };
+                    stack.push(result);
+                    break;
+                default:
+                    throw new RuntimeException("Line: " + token.getLine() + ". Unexpected token type in RPN: " + token.getType());
+
+            }
+
+        }
+
+        if (stack.size() != 1)
+        {
+            throw new RuntimeException("Line: " + rpnTokens.getFirst().getLine() + "Invalid RPN expression: stack should contain exactly one value");
+
+        }
+
+        return stack.pop();
+    }
+
+}
