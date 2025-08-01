@@ -7,7 +7,7 @@ public class ExecuteLog
 {
     public static void execute(Log log)
     {
-        String message = String.valueOf( ParseExpression.parse(log.getExpression()));
+        Object message =  ParseExpression.parse(log.getExpression());
         System.out.println(message);
 
     }

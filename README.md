@@ -12,9 +12,9 @@
 - [x] If statements
 - [ ] While loops
 - [ ] Tables
-- [ ] Individual scenes
-- [ ] Graphical elements
 - [ ] Functions
+- [ ] Graphical elements
+- [ ] Individual scenes
 
 ### Example syntax:
 ```
@@ -27,5 +27,6 @@ onStart:
     z=10
     log("not "+ z)
     answer = x / y
-    log("answer is " + answer)
+    if(x / y == 0.5):
+        log("answer is " + answer)
 ```

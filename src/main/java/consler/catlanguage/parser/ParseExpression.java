@@ -32,7 +32,7 @@ public class ParseExpression
             {
 
                 if (isString) expression_tokens.set(i, new Token(TokenType.STRING, Variable.getVariable( expression_tokens.get(i).getValue()),expression_tokens.get(i).getLine()));
-                else expression_tokens.set(i, new Token(TokenType.INTEGER, Variable.getVariable( expression_tokens.get(i).getValue()), expression_tokens.get(i).getLine())); // replacing variables with their value
+                else expression_tokens.set(i, new Token(TokenType.NUMBER, Variable.getVariable( expression_tokens.get(i).getValue()), expression_tokens.get(i).getLine())); // replacing variables with their value
                 // System.out.println("Replacing " + expression_tokens.get(i).getValue() + " with " + Variable.getVariable( expression_tokens.get(i).getValue()));
 
             }
@@ -85,14 +85,16 @@ public class ParseExpression
     }
     public static float parseArithmeticExpression(List<Token> expression_tokens)
     {
+        // System.out.println("arithmetics " +expression_tokens);
+
         Stack<Token> operator_stack = new Stack<>();
-        List<Token> output = new ArrayList<>(); // Use List instead of Stack for output
+        List<Token> output = new ArrayList<>();
 
         for (Token token : expression_tokens)
         {
             switch (token.getType())
             {
-                case INTEGER -> output.add(token);
+                case NUMBER -> output.add(token);
                 case SYMBOL ->
                 {
                     if (token.getValue().equals("("))
@@ -179,11 +181,6 @@ public class ParseExpression
                 MODE = "LESS_THAN";
                 operand_index = i;
                 break;
-
-            }
-            else if (token.getType() == TokenType.SYMBOL)
-            {
-                throw new RuntimeException("Line: " + token.getLine() +  ". Unexpected symbol: " + token.getValue());
 
             }
 
@@ -276,7 +273,7 @@ public class ParseExpression
                 }
 
             }
-            else if (token.getType() == TokenType.STRING || token.getType() == TokenType.INTEGER)
+            else if (token.getType() == TokenType.STRING || token.getType() == TokenType.NUMBER)
             {
                 string.append(token.getValue());
 
@@ -320,13 +317,13 @@ public class ParseExpression
         {
             switch (token.getType())
             {
-                case INTEGER:
+                case NUMBER:
                     stack.push(Float.parseFloat(token.getValue()));
                     break;
                 case SYMBOL:
                     if (stack.size() < 2)
                     {
-                        throw new RuntimeException("Invalid RPN expression: not enough operands for operator " + token.getValue());
+                        throw new RuntimeException("Line: " + token.getLine() + ". Invalid RPN expression: not enough operands for operator " + token.getValue());
 
                     }
 
@@ -357,7 +354,7 @@ public class ParseExpression
 
         if (stack.size() != 1)
         {
-            throw new RuntimeException("Line: " + rpnTokens.getFirst().getLine() + "Invalid RPN expression: stack should contain exactly one value");
+            throw new RuntimeException("Line: " + rpnTokens.getFirst().getLine() + ". Invalid RPN expression: stack should contain exactly one value");
 
         }
 

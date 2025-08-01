@@ -23,7 +23,7 @@ public class Lexer
             "onClick"
     };
     private static final String IDENTIFIER = "[a-zA-Z_][a-zA-Z0-9_]*";
-    private static final String INTEGER = "\\d+";
+    private static final String NUMBER = "-?\\d+(\\.\\d+)?";
     private static final String STRING = "\"[^\"]*\"";
     private static final String SYMBOL = "[+\\-*/=():!><]";
     private static final String INDENTATION = "\\t|( {4})";
@@ -39,7 +39,7 @@ public class Lexer
 
             if (line.isEmpty()) continue;
 
-            Pattern pattern = Pattern.compile(IDENTIFIER + "|" + INTEGER + "|" + STRING + "|" + SYMBOL + "|" + INDENTATION);
+            Pattern pattern = Pattern.compile(IDENTIFIER + "|" + NUMBER + "|" + STRING + "|" + SYMBOL + "|" + INDENTATION);
             Matcher matcher = pattern.matcher(line);
 
             while (matcher.find())
@@ -61,9 +61,9 @@ public class Lexer
                     tokens.add(new Token(TokenType.IDENTIFIER, token_value, line_count));
 
                 }
-                else if (token_value.matches(INTEGER))
+                else if (token_value.matches(NUMBER))
                 {
-                    tokens.add(new Token(TokenType.INTEGER, token_value, line_count));
+                    tokens.add(new Token(TokenType.NUMBER, token_value, line_count));
 
                 }
                 else if (token_value.matches(STRING))

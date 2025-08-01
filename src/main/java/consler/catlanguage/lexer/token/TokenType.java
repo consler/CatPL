@@ -4,7 +4,7 @@ public enum TokenType
 {
     KEYWORD,
     IDENTIFIER,
-    INTEGER,
+    NUMBER,
     STRING,
     SYMBOL,
     EVENT,
