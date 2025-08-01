@@ -15,19 +15,15 @@ public class Main
         String input =
 """
 onStart:
-    z=12
-    log("yo")
-    x = 12
-    log(x)
-    log("yoo" + 12)
-    if(12 != 10):
-        log("omg")
-        log("hello")
-    log("umm")
+    x = 7
+    y = 12 + 4/2
+    log("hmm what could be the answer??")
 
 onStart:
-    y= (x +z) /7
-    log(y-1)
+    z=10
+    log("not "+ z)
+    answer = x / y
+    log("answer is " + answer)
 """;
 
         List<Token> tokens = Lexer.tokenize(input);
