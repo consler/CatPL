@@ -20,16 +20,13 @@ onStart:
     log("hmm what could be the answer??")
 
 onStart:
-    z=10
+    z=10/5
     log("not "+ z)
     answer = 1
-    answer2 = 2
-    if(answer == 1):
-        if(answer2 == 2):
-            log("answers 2")
+    if(answer == 2):
         log("answers 1")
-        log("hi")
-    log("umm")
+    else:
+        log("answers not 1")
 
 """;
 

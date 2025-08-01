@@ -49,7 +49,7 @@ public class Parser
             }
             else
             {
-                throw new RuntimeException("Line: " + token.getLine() +". EVENT is expected, but got " + token.getValue() + " of type " + token.getType());
+                throw new RuntimeException("Line: " + token.getLine() +". EVENT is expected, but got '" + token.getValue() + "' of type " + token.getType());
 
             }
 
@@ -159,28 +159,22 @@ public class Parser
         currentIndex++;
         if (currentIndex < tokens.size())
         {
-            if(tokens.get( currentIndex).getType() == TokenType.SYMBOL && tokens.get( currentIndex).getValue().equals( "(") )
+            if(call.equals("log"))
             {
-                if(call.equals("log"))
-                {
-                    return new Log( parseArguments());
-                }
-                else if (call.equals("if"))
-                {
-                    return parseIf();
-
-                }
-                else
-                {
-                    throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". Unknown function: " + call);
-
-                }
-
+                if(tokens.get( currentIndex).getType() == TokenType.SYMBOL && tokens.get( currentIndex).getValue().equals( "(") ) return new Log( parseArguments());
+                else throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A parenthesis is expected after a function call, but got: " + tokens.get(currentIndex).getValue());
+            }
+            else if (call.equals("if"))
+            {
+                if(tokens.get( currentIndex).getType() == TokenType.SYMBOL && tokens.get( currentIndex).getValue().equals( "(") ) return parseIf();
+                else throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A parenthesis is expected after a function call, but got: " + tokens.get(currentIndex).getValue());
             }
             else
             {
-                throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A parenthesis is expected after a function call, but got: " + tokens.get(currentIndex).getValue());
+                throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". Unknown function: " + call);
             }
+
+
         }
         else
         {
@@ -278,6 +272,7 @@ public class Parser
         List<Token> arguments = parseArguments();
         int indentations_before = indentationsBefore();
         List<Statement> then_block = new ArrayList<>();
+        List<Statement> else_block = new ArrayList<>();
 
         currentIndex++;
         if (currentIndex < tokens.size())
@@ -291,8 +286,30 @@ public class Parser
                     then_block.add(parseCall());
                     currentIndex++;
                 }
-                currentIndex--;
-                return new If(arguments, then_block);
+                if(currentIndex < tokens.size() -1 & tokens.get(currentIndex + 1).getType() == TokenType.KEYWORD && tokens.get(currentIndex + 1).getValue().equals("else"))
+                {
+                    currentIndex += 2;
+                    if(tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals(":"))
+                    {
+                        while(currentIndex < tokens.size() && indentationsInFront() >= indentations_before+1)
+                        {
+                            currentIndex += indentationsInFront() - indentations_before +1;
+                            else_block.add(parseCall());
+                            currentIndex++;
+                        }
+                        currentIndex--;
+                        return new If(arguments, then_block, else_block);
+                    }
+                    else
+                    {
+                        throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A colon (:) is expected after an if statement");
+                    }
+                }
+                else
+                {
+                    currentIndex--;
+                    return new If(arguments, then_block);
+                }
             }
             else
             {

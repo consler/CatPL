@@ -16,5 +16,12 @@ public class ExecuteIf
                 Execute.statement(statement);
             }
         }
+        else if (ifStatement.getElseBlock() != null)
+        {
+            for(Statement statement : ifStatement.getElseBlock())
+            {
+                Execute.statement(statement);
+            }
+        }
     }
 }
