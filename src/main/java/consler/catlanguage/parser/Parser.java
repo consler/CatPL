@@ -167,32 +167,8 @@ public class Parser
                 }
                 else if (call.equals("if"))
                 {
-                    int indentations_before = indentationsBefore();
+                    return parseIf();
 
-                    List<Statement> then_block = new ArrayList<>();
-
-                    List<Token> arguments = parseArguments();
-
-                    currentIndex++;
-                    if (tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals(":"))
-                    {
-                        currentIndex++;
-                        while(currentIndex < tokens.size() && indentationsInFront() == indentations_before+1)
-                        {
-                            currentIndex += indentationsInFront() - indentations_before +1;
-                            then_block.add(parseCall());
-                            currentIndex++;
-                        }
-                        currentIndex--;
-
-                        return new If(arguments, then_block);
-
-                    }
-                    else
-                    {
-                        throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A colon (:) is expected after an if statement");
-
-                    }
                 }
                 else
                 {
@@ -230,35 +206,23 @@ public class Parser
                     currentIndex++;
                     expression_tokens.add(tokens.get(currentIndex));
                     //System.out.println("current index: " + currentIndex + " " + tokens.get(currentIndex));
-                    if(
-                        tokens.get(currentIndex + 1).getType() == TokenType.IDENTIFIER ||
-                        tokens.get(currentIndex + 1).getType() == TokenType.KEYWORD ||
-                        ( tokens.get(currentIndex+ 1).getType() == TokenType.EVENT && tokens.get(currentIndex).getValue().equals(")") )
-                    )
+                    if(tokens.get(currentIndex + 1).getType() == TokenType.KEYWORD || tokens.get(currentIndex+ 1).getType() == TokenType.EVENT || (tokens.get(currentIndex).getType() != TokenType.SYMBOL && tokens.get(currentIndex+1).getType() == TokenType.IDENTIFIER ) )
                     {
                         currentIndex--;
                         break;
                     }
-
-
                 }
-
                 return new Assignment(identifier, expression_tokens);
-
             }
             else
             {
                 throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A symbol is expected after an identifier, but got: " + tokens.get(currentIndex).getValue());
-
             }
-
         }
         else
         {
             throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". Unexpected end of input.");
-
         }
-
     }
 
     private static List<Token> parseArguments()
@@ -269,25 +233,18 @@ public class Parser
         int parenthesis_count = 1;
         while (currentIndex < tokens.size()  && parenthesis_count > 0)
         {
-
             currentIndex++;
             if(tokens.get(currentIndex).getValue().equals("("))
             {
                 parenthesis_count++;
-
             }
             else if(tokens.get(currentIndex).getValue().equals(")"))
             {
                 parenthesis_count--;
-
             }
-
             expression_tokens.add(tokens.get(currentIndex));
-
         }
-
         return expression_tokens;
-
     }
 
     private static int indentationsBefore()
@@ -299,9 +256,7 @@ public class Parser
         {
             indentations++;
             indentations_check_index--;
-
         }
-
         return indentations;
     }
 
@@ -314,10 +269,32 @@ public class Parser
         {
             indentations++;
             indentations_check_index++;
-
         }
-
         return indentations;
     }
 
+    private static If parseIf()
+    {
+        List<Token> arguments = parseArguments();
+        int indentations_before = indentationsBefore();
+        List<Statement> then_block = new ArrayList<>();
+
+        currentIndex++;
+        if (tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals(":"))
+        {
+            currentIndex++;
+            while(currentIndex < tokens.size() && indentationsInFront() == indentations_before+1)
+            {
+                currentIndex += indentationsInFront() - indentations_before +1;
+                then_block.add(parseCall());
+                currentIndex++;
+            }
+            currentIndex--;
+            return new If(arguments, then_block);
+        }
+        else
+        {
+            throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A colon (:) is expected after an if statement");
+        }
+    }
 }

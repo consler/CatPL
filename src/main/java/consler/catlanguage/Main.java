@@ -15,18 +15,18 @@ public class Main
         String input =
 """
 onStart:
-    z=1
+    z=12
     log("yo")
     x = 12
     log(x)
     log("yoo" + 12)
-    if(12 < 10):
+    if(12 != 10):
         log("omg")
         log("hello")
     log("umm")
 
 onStart:
-    y=1
+    y= x +z
     log(y-1)
 """;
 
