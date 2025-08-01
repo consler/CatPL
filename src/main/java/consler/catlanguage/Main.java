@@ -4,6 +4,7 @@ import consler.catlanguage.ast.AstNode;
 import consler.catlanguage.execution.Start;
 import consler.catlanguage.lexer.Lexer;
 import consler.catlanguage.parser.Parser;
+import consler.catlanguage.lexer.token.Token;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class Main
         String input =
 """
 onStart:
+    z=1
     log("yo")
     x = 12
     log(x)
@@ -24,7 +26,8 @@ onStart:
     log(y-1)
 """;
 
-        List<AstNode> ast = Parser.parse(Lexer.tokenize(input));
+        List<Token> tokens = Lexer.tokenize(input);
+        List<AstNode> ast = Parser.parse(tokens);
         Start.start(ast);
 
 

@@ -5,8 +5,8 @@ import consler.catlanguage.ast.events.OnStart;
 import consler.catlanguage.ast.statements.Assignment;
 import consler.catlanguage.ast.statements.Statement;
 import consler.catlanguage.ast.statements.calls.Log;
-import consler.catlanguage.token.Token;
-import consler.catlanguage.token.TokenType;
+import consler.catlanguage.lexer.token.Token;
+import consler.catlanguage.lexer.token.TokenType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +20,9 @@ public class Parser
         Parser.tokens = tokens;
         List<AstNode> astNodes = new ArrayList<>();
 
-        while(currentIndex < tokens.size())
+        while(currentIndex < tokens.size() - 1)
         {
+
             Token token = tokens.get(currentIndex);
 
             if (token.getType() == TokenType.EVENT)
@@ -47,7 +48,8 @@ public class Parser
             }
             else
             {
-                currentIndex++;
+                throw new RuntimeException("Line: " + token.getLine() +". EVENT is expected, but got " + token.getValue() + " of type " + token.getType());
+
             }
 
 
@@ -72,9 +74,17 @@ public class Parser
                 while(currentIndex + 1 < tokens.size())
                 {
                     currentIndex++;
-                    if(tokens.get(currentIndex).getType() == TokenType.EVENT)
+
+                    if(!(tokens.get(currentIndex).getType() == TokenType.INDETATION))
                     {
                         break;
+                    }
+
+                    currentIndex++;
+
+                    if(tokens.get(currentIndex).getType() == TokenType.EVENT)
+                    {
+                        throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() + ". Nested events aren't allowed");
                     }
 
                     if (currentIndex + 1  < tokens.size())
@@ -213,7 +223,11 @@ public class Parser
                         tokens.get(currentIndex + 1).getType() == TokenType.IDENTIFIER ||
                         tokens.get(currentIndex + 1).getType() == TokenType.KEYWORD ||
                         ( tokens.get(currentIndex+ 1).getType() == TokenType.EVENT && tokens.get(currentIndex).getValue().equals(")") )
-                    ) break;
+                    )
+                    {
+                        currentIndex--;
+                        break;
+                    }
 
 
                 }

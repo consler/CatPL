@@ -1,4 +1,4 @@
-package consler.catlanguage.token;
+package consler.catlanguage.lexer.token;
 
 public enum TokenType
 {
@@ -7,5 +7,6 @@ public enum TokenType
     INTEGER,
     STRING,
     SYMBOL,
-    EVENT
+    EVENT,
+    INDETATION
 }

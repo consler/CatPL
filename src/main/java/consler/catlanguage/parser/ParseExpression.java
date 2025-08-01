@@ -1,8 +1,8 @@
 package consler.catlanguage.parser;
 
 import consler.catlanguage.execution.execute.assignment.Variable;
-import consler.catlanguage.token.Token;
-import consler.catlanguage.token.TokenType;
+import consler.catlanguage.lexer.token.Token;
+import consler.catlanguage.lexer.token.TokenType;
 
 import java.util.ArrayList;
 import java.util.List;

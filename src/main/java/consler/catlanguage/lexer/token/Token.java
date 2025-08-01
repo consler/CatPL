@@ -1,4 +1,4 @@
-package consler.catlanguage.token;
+package consler.catlanguage.lexer.token;
 
 public class Token
 {
@@ -29,7 +29,7 @@ public class Token
 
     public int getLine()
     {
-        return line;
+        return line + 1;
 
     }
 

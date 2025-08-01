@@ -1,8 +1,8 @@
 package consler.catlanguage.lexer;
 
 
-import consler.catlanguage.token.Token;
-import consler.catlanguage.token.TokenType;
+import consler.catlanguage.lexer.token.Token;
+import consler.catlanguage.lexer.token.TokenType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +25,7 @@ public class Lexer
     private static final String INTEGER = "\\d+";
     private static final String STRING = "\"[^\"]*\"";
     private static final String SYMBOL = "[+\\-*/=():]";
+    private static final String INDENTATION = "\\t|( {4})";
 
     public static List<Token> tokenize(String input)
     {
@@ -35,11 +36,9 @@ public class Lexer
         {
             String line = lines[line_count];
 
-            line = line.trim();
-
             if (line.isEmpty()) continue;
 
-            Pattern pattern = Pattern.compile(IDENTIFIER + "|" + INTEGER + "|" + STRING + "|" + SYMBOL);
+            Pattern pattern = Pattern.compile(IDENTIFIER + "|" + INTEGER + "|" + STRING + "|" + SYMBOL + "|" + INDENTATION);
             Matcher matcher = pattern.matcher(line);
 
             while (matcher.find())
@@ -74,6 +73,11 @@ public class Lexer
                 else if (token_value.matches(SYMBOL))
                 {
                     tokens.add(new Token(TokenType.SYMBOL, token_value, line_count));
+
+                }
+                else if (token_value.matches(INDENTATION))
+                {
+                    tokens.add(new Token(TokenType.INDETATION, token_value, line_count));
 
                 }
 

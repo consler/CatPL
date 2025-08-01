@@ -1,7 +1,7 @@
 package consler.catlanguage.ast.statements.calls;
 
 import consler.catlanguage.ast.statements.Call;
-import consler.catlanguage.token.Token;
+import consler.catlanguage.lexer.token.Token;
 
 import java.util.List;
 
