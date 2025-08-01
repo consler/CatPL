@@ -1,4 +1,4 @@
-package consler.catlanguage.execution;
+package consler.catlanguage.execution.execute.assignment;
 
 import java.util.HashMap;
 import java.util.Map;

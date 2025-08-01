@@ -20,4 +20,17 @@ public class OnStart extends AstNode
         return statements;
 
     }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder s = new StringBuilder("onStart:");
+        for (Statement statement : statements)
+        {
+            s.append(statement.toString());
+            s.append(",");
+        }
+        return s.toString();
+
+    }
 }

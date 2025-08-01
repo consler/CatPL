@@ -1,7 +1,10 @@
 package consler.catlanguage.parser;
 
-import consler.catlanguage.execution.functions.Log;
-import consler.catlanguage.execution.Variable;
+import consler.catlanguage.ast.AstNode;
+import consler.catlanguage.ast.events.OnStart;
+import consler.catlanguage.ast.statements.Assignment;
+import consler.catlanguage.ast.statements.Statement;
+import consler.catlanguage.ast.statements.calls.Log;
 import consler.catlanguage.token.Token;
 import consler.catlanguage.token.TokenType;
 
@@ -12,9 +15,11 @@ public class Parser
 {
     private static int currentIndex = 0;
     private static List<Token> tokens;
-    public static void parse(List<Token> tokens)
+    public static List<AstNode> parse(List<Token> tokens)
     {
         Parser.tokens = tokens;
+        List<AstNode> astNodes = new ArrayList<>();
+
         while(currentIndex < tokens.size())
         {
             Token token = tokens.get(currentIndex);
@@ -24,7 +29,7 @@ public class Parser
                 if (token.getValue().equals("onStart"))
                 {
                     currentIndex++;
-                    parseOnStart();
+                    astNodes.add(parseOnStart());
 
                 }
                 else if(token.getValue().equals("onClick"))
@@ -48,11 +53,15 @@ public class Parser
 
         }
 
+        return astNodes;
+
 
     }
 
-    private static void parseOnStart()
+    private static AstNode parseOnStart()
     {
+        List<Statement> statements = new ArrayList<>();
+
         if(currentIndex <  tokens.size())
         {
 
@@ -70,7 +79,7 @@ public class Parser
 
                     if (currentIndex + 1  < tokens.size())
                     {
-                        parseStatement();
+                        statements.add(parseStatement());
 
                     }
                     else break;
@@ -91,9 +100,11 @@ public class Parser
 
         }
 
+        return new OnStart(statements);
+
     }
 
-    private static void parseStatement()
+    private static Statement parseStatement()
     {
         //System.out.println("Parsing statement");
 
@@ -103,8 +114,14 @@ public class Parser
             //System.out.println(token);
             switch (token.getType())
             {
-                case KEYWORD -> parseCall();
-                case IDENTIFIER -> parseAssignment();
+                case KEYWORD ->
+                {
+                    return parseCall();
+                }
+                case IDENTIFIER ->
+                {
+                    return parseAssignment();
+                }
                 default -> throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() + ". Unexpected token: " + token.getValue());
             }
 
@@ -115,10 +132,9 @@ public class Parser
 
         }
 
-
     }
 
-    private static void parseCall()
+    private static Statement parseCall()
     {
         String call =  tokens.get(currentIndex).getValue();
         //System.out.println("Parsing function call: " + tokens.get(currentIndex).getValue());
@@ -153,7 +169,8 @@ public class Parser
 
                     }
                     //currentIndex++;
-                    Log.log( String.valueOf( parseExpression(expression_tokens)));
+                    return new Log( expression_tokens);
+
 
                 }
                 else
@@ -176,7 +193,7 @@ public class Parser
 
     }
 
-    private static void parseAssignment()
+    private static Assignment parseAssignment()
     {
         String identifier = tokens.get(currentIndex).getValue();
 
@@ -201,8 +218,12 @@ public class Parser
 
                 }
 
-                //System.out.println("expression: " + expression_tokens);
-                Variable.setVariable(identifier, String.valueOf( parseExpression( expression_tokens)));
+                return new Assignment(identifier, expression_tokens);
+
+            }
+            else
+            {
+                throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A symbol is expected after an identifier, but got: " + tokens.get(currentIndex).getValue());
 
             }
 
@@ -215,62 +236,6 @@ public class Parser
 
     }
 
-    private static Object parseExpression(List<Token> expression_tokens)
-    {
-        boolean isString = false;
 
-        for (Token token : expression_tokens) //check whether contains a string
-        {
-            if (token.getType() == TokenType.STRING)
-            {
-                isString = true;
-                break;
-
-            }
-
-        }
-
-        for (int i = 0; i < expression_tokens.size(); i++) //checking
-        {
-            if(expression_tokens.get(i).getType() == TokenType.IDENTIFIER)
-            {
-
-                if (isString) expression_tokens.set(i, new Token(TokenType.STRING, Variable.getVariable( expression_tokens.get(i).getValue()), tokens.get(currentIndex).getLine()));
-                else expression_tokens.set(i, new Token(TokenType.INTEGER, Variable.getVariable( expression_tokens.get(i).getValue()), tokens.get(currentIndex).getLine())); // replacing variables with their value
-                // System.out.println("Replacing " + expression_tokens.get(i).getValue() + " with " + Variable.getVariable( expression_tokens.get(i).getValue()));
-
-            }
-            else if (expression_tokens.get(i).getType() == TokenType.SYMBOL )
-            {
-                if (isString && !( expression_tokens.get(i).getValue().equals("+") || expression_tokens.get(i).getValue().equals("(") || expression_tokens.get(i).getValue().equals(")") ))
-                {
-                    throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A an unexpected symbol received, when trying to concatenate a string.");
-
-                }
-                else if(!isString && !(
-                        expression_tokens.get(i).getValue().equals("+") ||
-                        expression_tokens.get(i).getValue().equals("-")  ||
-                        expression_tokens.get(i).getValue().equals("*")  ||
-                        expression_tokens.get(i).getValue().equals("/") ||
-                        expression_tokens.get(i).getValue().equals("(") ||
-                        expression_tokens.get(i).getValue().equals(")")))
-                    throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". An unexpected symbol received, when trying to calculate an expression: " + expression_tokens.get(i).getValue());
-
-
-            }
-            else if (expression_tokens.get(i).getType() == TokenType.KEYWORD || expression_tokens.get(i).getType() == TokenType.EVENT)
-            {
-                throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". An unexpected token type, when trying to calculate an expression");
-
-            }
-
-        }
-
-        // System.out.println(expression_tokens);
-
-        if(isString) return ParseExpression.parseString(expression_tokens);
-        else return ParseExpression.parseArithmeticExpression(expression_tokens);
-
-    }
 
 }

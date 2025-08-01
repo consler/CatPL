@@ -1,5 +1,6 @@
 package consler.catlanguage.parser;
 
+import consler.catlanguage.execution.execute.assignment.Variable;
 import consler.catlanguage.token.Token;
 import consler.catlanguage.token.TokenType;
 
@@ -9,6 +10,64 @@ import java.util.Stack;
 
 public class ParseExpression
 {
+
+    public static Object parse(List<Token> expression_tokens)
+    {
+        boolean isString = false;
+
+        for (Token token : expression_tokens) //check whether contains a string
+        {
+            if (token.getType() == TokenType.STRING)
+            {
+                isString = true;
+                break;
+
+            }
+
+        }
+
+        for (int i = 0; i < expression_tokens.size(); i++) //checking
+        {
+            if(expression_tokens.get(i).getType() == TokenType.IDENTIFIER)
+            {
+
+                if (isString) expression_tokens.set(i, new Token(TokenType.STRING, Variable.getVariable( expression_tokens.get(i).getValue()),expression_tokens.get(i).getLine()));
+                else expression_tokens.set(i, new Token(TokenType.INTEGER, Variable.getVariable( expression_tokens.get(i).getValue()), expression_tokens.get(i).getLine())); // replacing variables with their value
+                // System.out.println("Replacing " + expression_tokens.get(i).getValue() + " with " + Variable.getVariable( expression_tokens.get(i).getValue()));
+
+            }
+            else if (expression_tokens.get(i).getType() == TokenType.SYMBOL )
+            {
+                if (isString && !( expression_tokens.get(i).getValue().equals("+") || expression_tokens.get(i).getValue().equals("(") || expression_tokens.get(i).getValue().equals(")") ))
+                {
+                    throw new RuntimeException("Line: " + expression_tokens.get(i).getLine() +  ". A an unexpected symbol received, when trying to concatenate a string.");
+
+                }
+                else if(!isString && !(
+                        expression_tokens.get(i).getValue().equals("+") ||
+                                expression_tokens.get(i).getValue().equals("-")  ||
+                                expression_tokens.get(i).getValue().equals("*")  ||
+                                expression_tokens.get(i).getValue().equals("/") ||
+                                expression_tokens.get(i).getValue().equals("(") ||
+                                expression_tokens.get(i).getValue().equals(")")))
+                    throw new RuntimeException("Line: " + expression_tokens.get(i).getLine() +  ". An unexpected symbol received, when trying to calculate an expression: " + expression_tokens.get(i).getValue());
+
+
+            }
+            else if (expression_tokens.get(i).getType() == TokenType.KEYWORD || expression_tokens.get(i).getType() == TokenType.EVENT)
+            {
+                throw new RuntimeException("Line: " + expression_tokens.get(i).getLine() +  ". An unexpected token type, when trying to calculate an expression");
+
+            }
+
+        }
+
+        // System.out.println(expression_tokens);
+
+        if(isString) return parseString(expression_tokens);
+        else return parseArithmeticExpression(expression_tokens);
+
+    }
     public static int parseArithmeticExpression(List<Token> expression_tokens)
     {
         Stack<Token> operator_stack = new Stack<>();

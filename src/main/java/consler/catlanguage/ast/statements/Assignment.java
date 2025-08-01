@@ -1,13 +1,15 @@
 package consler.catlanguage.ast.statements;
 
-import consler.catlanguage.ast.AstNode;
+import consler.catlanguage.token.Token;
 
-class Assignment extends Statement
+import java.util.List;
+
+public class Assignment extends Statement
 {
     private final String variable;
-    private final AstNode value;
+    private final List<Token> value;
 
-    public Assignment(String variable, AstNode value)
+    public Assignment(String variable, List<Token> value)
     {
         this.variable = variable;
         this.value = value;
@@ -20,9 +22,16 @@ class Assignment extends Statement
 
     }
 
-    public AstNode getValue()
+    public List<Token> getValue()
     {
         return value;
+
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Assignment: " + variable + " = " + value;
 
     }
 }
