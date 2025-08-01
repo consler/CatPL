@@ -15,6 +15,7 @@ public class Lexer
             "createText",
             "log",
             "if",
+            "else",
             "while"
     };
     private static final String[] EVENTS = new String[]{
@@ -24,7 +25,7 @@ public class Lexer
     private static final String IDENTIFIER = "[a-zA-Z_][a-zA-Z0-9_]*";
     private static final String INTEGER = "\\d+";
     private static final String STRING = "\"[^\"]*\"";
-    private static final String SYMBOL = "[+\\-*/=():]";
+    private static final String SYMBOL = "[+\\-*/=():!><]";
     private static final String INDENTATION = "\\t|( {4})";
 
     public static List<Token> tokenize(String input)

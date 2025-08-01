@@ -1,4 +1,3 @@
-// While.java
 package consler.catlanguage.ast.statements.containers;
 
 import consler.catlanguage.ast.expressions.Expression;
@@ -17,8 +16,6 @@ public class While extends Statement
         this.body = body;
 
     }
-
-    // Getters
     public Expression getCondition()
     {
         return condition;

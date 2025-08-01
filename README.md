@@ -4,11 +4,11 @@
 ### Alpha features:
 - [x] Basic arithmetics — +, -, *, /
 - [x] Variables — assignment and usage
-- [ ] Indentation check
+- [x] Indentation check
 - [ ] Events:
 - -  [x] OnStart
 - -  [ ] OnClick
-- [ ] If statements
+- [x] If statements
 - [ ] While loops
 - [ ] Individual scenes
 - [ ] Graphical elements

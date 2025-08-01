@@ -5,6 +5,7 @@ import consler.catlanguage.ast.events.OnStart;
 import consler.catlanguage.ast.statements.Assignment;
 import consler.catlanguage.ast.statements.Statement;
 import consler.catlanguage.ast.statements.calls.Log;
+import consler.catlanguage.ast.statements.containers.If;
 import consler.catlanguage.lexer.token.Token;
 import consler.catlanguage.lexer.token.TokenType;
 
@@ -75,6 +76,8 @@ public class Parser
                 {
                     currentIndex++;
 
+                    // System.out.println(tokens.get(currentIndex));
+
                     if(!(tokens.get(currentIndex).getType() == TokenType.INDETATION))
                     {
                         break;
@@ -132,6 +135,11 @@ public class Parser
                 {
                     return parseAssignment();
                 }
+                case INDETATION ->
+                {
+                    currentIndex++;
+                    return parseStatement();
+                }
                 default -> throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() + ". Unexpected token: " + token.getValue());
             }
 
@@ -153,35 +161,38 @@ public class Parser
         {
             if(tokens.get( currentIndex).getType() == TokenType.SYMBOL && tokens.get( currentIndex).getValue().equals( "(") )
             {
-
                 if(call.equals("log"))
                 {
-                    List<Token> expression_tokens = new ArrayList<>();
-                    expression_tokens.add(new Token(TokenType.SYMBOL, "(", tokens.get(currentIndex).getLine()));
+                    return new Log( parseArguments());
+                }
+                else if (call.equals("if"))
+                {
+                    int indentations_before = indentationsBefore();
 
-                    int parenthesis_count = 1;
-                    while (currentIndex < tokens.size()  && parenthesis_count > 0)
+                    List<Statement> then_block = new ArrayList<>();
+
+                    List<Token> arguments = parseArguments();
+
+                    currentIndex++;
+                    if (tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals(":"))
                     {
-
                         currentIndex++;
-                        if(tokens.get(currentIndex).getValue().equals("("))
+                        while(currentIndex < tokens.size() && indentationsInFront() == indentations_before+1)
                         {
-                            parenthesis_count++;
-
+                            currentIndex += indentationsInFront() - indentations_before +1;
+                            then_block.add(parseCall());
+                            currentIndex++;
                         }
-                        else if(tokens.get(currentIndex).getValue().equals(")"))
-                        {
-                            parenthesis_count--;
+                        currentIndex--;
 
-                        }
-
-                        expression_tokens.add(tokens.get(currentIndex));
+                        return new If(arguments, then_block);
 
                     }
-                    //currentIndex++;
-                    return new Log( expression_tokens);
+                    else
+                    {
+                        throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A colon (:) is expected after an if statement");
 
-
+                    }
                 }
                 else
                 {
@@ -192,12 +203,12 @@ public class Parser
             }
             else
             {
-                throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A parenthesis is expected after a function call.");
+                throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A parenthesis is expected after a function call, but got: " + tokens.get(currentIndex).getValue());
             }
         }
         else
         {
-            throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A parenthesis is expected after a function call.");
+            throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A parenthesis is expected after a function call");
 
         }
 
@@ -250,6 +261,63 @@ public class Parser
 
     }
 
+    private static List<Token> parseArguments()
+    {
+        List<Token> expression_tokens = new ArrayList<>();
+        expression_tokens.add(new Token(TokenType.SYMBOL, "(", tokens.get(currentIndex).getLine()));
 
+        int parenthesis_count = 1;
+        while (currentIndex < tokens.size()  && parenthesis_count > 0)
+        {
+
+            currentIndex++;
+            if(tokens.get(currentIndex).getValue().equals("("))
+            {
+                parenthesis_count++;
+
+            }
+            else if(tokens.get(currentIndex).getValue().equals(")"))
+            {
+                parenthesis_count--;
+
+            }
+
+            expression_tokens.add(tokens.get(currentIndex));
+
+        }
+
+        return expression_tokens;
+
+    }
+
+    private static int indentationsBefore()
+    {
+        int indentations = 0;
+        int indentations_check_index = currentIndex;
+
+        while (indentations_check_index > 0 && tokens.get(indentations_check_index).getType() == TokenType.INDETATION)
+        {
+            indentations++;
+            indentations_check_index--;
+
+        }
+
+        return indentations;
+    }
+
+    private static int indentationsInFront()
+    {
+        int indentations = 0;
+        int indentations_check_index = currentIndex + 1;
+
+        while (indentations_check_index < tokens.size() && tokens.get(indentations_check_index).getType() == TokenType.INDETATION)
+        {
+            indentations++;
+            indentations_check_index++;
+
+        }
+
+        return indentations;
+    }
 
 }

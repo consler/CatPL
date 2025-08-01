@@ -20,6 +20,10 @@ onStart:
     x = 12
     log(x)
     log("yoo" + 12)
+    if(12 < 10):
+        log("omg")
+        log("hello")
+    log("umm")
 
 onStart:
     y=1

@@ -125,6 +125,103 @@ public class ParseExpression
 
     public static boolean parseCondition(List<Token> condition_tokens)
     {
+        // System.out.println(condition_tokens);
+
+        condition_tokens = condition_tokens.subList(1, condition_tokens.size() -1); // getting rid of the first and last parenthesis
+
+        String MODE = "NOT_VALID";
+        int operand_index = 0;
+
+        for (int i = 0; i < condition_tokens.size()-1; i++)
+        {
+            Token token = condition_tokens.get(i);
+            Token next_token = condition_tokens.get(i + 1);
+            //System.out.println(token + " " + next_token);
+
+            if(token.getType() == TokenType.SYMBOL && token.getValue().equals("=") && next_token.getType() == TokenType.SYMBOL && next_token.getValue().equals("=") ) // ==
+            {
+                MODE = "EQUAL";
+                operand_index = i;
+                break;
+
+            }
+            else if(token.getType() == TokenType.SYMBOL && token.getValue().equals("!") && next_token.getType() == TokenType.SYMBOL && next_token.getValue().equals("=") ) // !=
+            {
+                MODE = "NEGATED_EQUAL";
+                operand_index = i;
+                break;
+
+            }
+            else if(token.getType() == TokenType.SYMBOL && token.getValue().equals(">") ) // >
+            {
+                MODE = "GREATER_THAN";
+                operand_index = i;
+                break;
+
+            }
+            else if(token.getType() == TokenType.SYMBOL && token.getValue().equals("<") ) // <
+            {
+                MODE = "LESS_THAN";
+                operand_index = i;
+                break;
+
+            }
+            else if (token.getType() == TokenType.SYMBOL)
+            {
+                throw new RuntimeException("Line: " + token.getLine() +  ". Unexpected symbol: " + token.getValue());
+
+            }
+
+        }
+
+        if(MODE.equals("NOT_VALID")) throw new RuntimeException("Line: " + condition_tokens.getFirst() + ". Invalid condition");
+
+        if(operand_index == 0) throw new RuntimeException("Line: " + condition_tokens.getFirst().getLine() + ". Condition can't start with an operand");
+
+
+        List<Token> left_side = condition_tokens.subList(0, operand_index);
+
+        switch(MODE)
+        {
+            case "EQUAL" ->
+            {
+                List<Token> right_side = condition_tokens.subList(operand_index+2, condition_tokens.size());
+                if(ParseExpression.parse(left_side).equals(ParseExpression.parse(right_side))) return true;
+
+            }
+            case "NEGATED_EQUAL" ->
+            {
+                List<Token> right_side = condition_tokens.subList(operand_index+2, condition_tokens.size());
+                if(!ParseExpression.parse(left_side).equals(ParseExpression.parse(right_side))) return true;
+
+            }
+            case "GREATER_THAN" ->
+            {
+                List<Token> right_side = condition_tokens.subList(operand_index+1, condition_tokens.size());
+                try
+                {
+                    if((int) ParseExpression.parse(left_side) > (int) ParseExpression.parse(right_side)) return true;
+                }
+                catch (NumberFormatException n)
+                {
+                    throw new RuntimeException("Line: " + condition_tokens.getFirst().getLine() +  ". Invalid comparison: " + condition_tokens.getFirst().getValue());
+                }
+
+            }
+            case "LESS_THAN" ->
+            {
+                List<Token> right_side = condition_tokens.subList(operand_index+1, condition_tokens.size());
+                try
+                {
+                    if((int) ParseExpression.parse(left_side) < (int) ParseExpression.parse(right_side)) return true;
+                }
+                catch (NumberFormatException n)
+                {
+                    throw new RuntimeException("Line: " + condition_tokens.getFirst().getLine() +  ". Invalid comparison: " + condition_tokens.getFirst().getValue());
+                }
+            }
+
+        }
 
         return false;
 
