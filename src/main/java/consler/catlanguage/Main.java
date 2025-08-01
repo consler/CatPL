@@ -22,14 +22,20 @@ onStart:
 onStart:
     z=10
     log("not "+ z)
-    answer = x / y
-    if(x / y == 0.5):
-        log("answer is " + answer)
+    answer = 1
+    answer2 = 2
+    if(answer == 1):
+        if(answer2 == 2):
+            log("answers 2")
+        log("answers 1")
+        log("hi")
+    log("umm")
+
 """;
 
         List<Token> tokens = Lexer.tokenize(input);
-        System.out.println(tokens);
         List<AstNode> ast = Parser.parse(tokens);
+        //System.out.println(ast);
         Start.start(ast);
 
 

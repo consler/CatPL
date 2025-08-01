@@ -231,7 +231,7 @@ public class Parser
         expression_tokens.add(new Token(TokenType.SYMBOL, "(", tokens.get(currentIndex).getLine()));
 
         int parenthesis_count = 1;
-        while (currentIndex < tokens.size()  && parenthesis_count > 0)
+        while (currentIndex+1 < tokens.size() && parenthesis_count > 0)
         {
             currentIndex++;
             if(tokens.get(currentIndex).getValue().equals("("))
@@ -280,21 +280,28 @@ public class Parser
         List<Statement> then_block = new ArrayList<>();
 
         currentIndex++;
-        if (tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals(":"))
+        if (currentIndex < tokens.size())
         {
-            currentIndex++;
-            while(currentIndex < tokens.size() && indentationsInFront() == indentations_before+1)
+            if (tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals(":"))
             {
-                currentIndex += indentationsInFront() - indentations_before +1;
-                then_block.add(parseCall());
                 currentIndex++;
+                while(currentIndex < tokens.size() && indentationsInFront() >= indentations_before+1)
+                {
+                    currentIndex += indentationsInFront() - indentations_before +1;
+                    then_block.add(parseCall());
+                    currentIndex++;
+                }
+                currentIndex--;
+                return new If(arguments, then_block);
             }
-            currentIndex--;
-            return new If(arguments, then_block);
+            else
+            {
+                throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A colon (:) is expected after an if statement");
+            }
         }
         else
         {
-            throw new RuntimeException("Line: " + tokens.get(currentIndex).getLine() +  ". A colon (:) is expected after an if statement");
+            throw new RuntimeException("Unexpected token after: " + tokens.get(currentIndex-1));
         }
     }
 }

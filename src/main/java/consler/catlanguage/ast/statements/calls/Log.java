@@ -24,15 +24,8 @@ public class Log extends Call
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Log: ");
-        for (Token token : expression)
-        {
-            sb.append(token.toString());
-            sb.append(",");
-        }
 
-        return sb.toString();
+        return "\n Log: " + expression.toString();
 
     }
 

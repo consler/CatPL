@@ -2,17 +2,17 @@ package consler.catlanguage.ast.types;
 
 import consler.catlanguage.ast.AstNode;
 
-public class String extends AstNode
+public class LiteralString extends AstNode
 {
-    private final String value;
+    private final LiteralString value;
 
-    public String(String value)
+    public LiteralString(LiteralString value)
     {
         this.value = value;
 
     }
 
-    public String getValue()
+    public LiteralString getValue()
     {
         return value;
 

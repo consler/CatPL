@@ -1,6 +1,7 @@
 package consler.catlanguage.ast.types;
 
 import consler.catlanguage.ast.AstNode;
+import consler.catlanguage.execution.execute.assignment.Variable;
 
 public class Identifier extends AstNode
 {
@@ -15,6 +16,12 @@ public class Identifier extends AstNode
     public String getName()
     {
         return name;
+
+    }
+
+    public Object getValue()
+    {
+        return Variable.getVariable(name);
 
     }
 }
