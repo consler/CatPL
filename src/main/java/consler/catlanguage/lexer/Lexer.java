@@ -50,80 +50,55 @@ public class Lexer
                 if (isKeyword(token_value))
                 {
                     tokens.add(new Token(TokenType.KEYWORD, token_value, line_count));
-
                 }
                 else if (isEvent(token_value))
                 {
                     tokens.add(new Token(TokenType.EVENT, token_value, line_count));
-
                 }
                 else if (token_value.matches(IDENTIFIER))
                 {
                     tokens.add(new Token(TokenType.IDENTIFIER, token_value, line_count));
-
                 }
                 else if (token_value.matches(NUMBER))
                 {
                     tokens.add(new Token(TokenType.NUMBER, token_value, line_count));
-
                 }
                 else if (token_value.matches(STRING))
                 {
                     tokens.add(new Token(TokenType.STRING, token_value.substring(1, token_value.length() - 1), line_count));
-
                 }
                 else if (token_value.matches(SYMBOL))
                 {
                     tokens.add(new Token(TokenType.SYMBOL, token_value, line_count));
-
                 }
                 else if (token_value.matches(INDENTATION))
                 {
                     tokens.add(new Token(TokenType.INDETATION, token_value, line_count));
-
                 }
-
             }
-
             tokens.add(new Token(TokenType.EOL, "", line_count));
-
         }
-
+        tokens.add(new Token(TokenType.EOF, "", -1));
         return tokens;
-
     }
 
     private static boolean isKeyword(String tokenValue)
     {
         for (String keyword : KEYWORDS)
         {
-            if (keyword.equals(tokenValue))
-            {
-                return true;
-
-            }
-
+            if (keyword.equals(tokenValue)) return true;
         }
-
         return false;
-
     }
 
     private static boolean isEvent(String tokenValue)
     {
         for (String event : EVENTS)
         {
-            if (event.equals(tokenValue))
-            {
-                return true;
-
-         }
+            if (event.equals(tokenValue)) return true;
 
         }
-
         return false;
-
     }
-
 
 }

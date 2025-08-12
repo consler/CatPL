@@ -294,11 +294,9 @@ public class ParseExpression
         while (!operator_stack.isEmpty() && precedence(operator_stack.peek()) >= precedence(token))
         {
             output.add(operator_stack.pop());
-
         }
         operator_stack.push(token);
         return operator_stack;
-
     }
 
     private static int precedence(Token token)
@@ -327,7 +325,6 @@ public class ParseExpression
                     if (stack.size() < 2)
                     {
                         throw new RuntimeException("Line: " + token.getLine() + ". Invalid RPN expression: not enough operands for operator " + token.getValue());
-
                     }
 
                     float right = stack.pop();
@@ -337,29 +334,22 @@ public class ParseExpression
                         case "+" -> left + right;
                         case "-" -> left - right;
                         case "*" -> left * right;
-                        case "/" -> {
-                            if (right == 0)
-                            {
-                                throw new RuntimeException("Division by zero");
-                            }
+                        case "/" ->
+                        {
+                            if (right == 0) throw new RuntimeException("Division by zero not possible");
+
                             yield left / right;
                         }
                         default -> throw new RuntimeException("Line: " + token.getLine() + ". Unknown operator: " + token.getValue());
                     };
                     stack.push(result);
                     break;
-                default:
-                    throw new RuntimeException("Line: " + token.getLine() + ". Unexpected token type in RPN: " + token.getType());
-
+                default: throw new RuntimeException("Line: " + token.getLine() + ". Unexpected token type in RPN: " + token.getType());
             }
 
         }
 
-        if (stack.size() != 1)
-        {
-            throw new RuntimeException("Line: " + rpnTokens.getFirst().getLine() + ". Invalid RPN expression: stack should contain exactly one value");
-
-        }
+        if (stack.size() != 1) throw new RuntimeException("Line: " + rpnTokens.getFirst().getLine() + ". Invalid RPN expression: stack should contain exactly one value");
 
         return stack.pop();
     }

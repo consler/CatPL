@@ -9,5 +9,6 @@ public enum TokenType
     SYMBOL,
     EVENT,
     INDETATION,
-    EOL
+    EOL,
+    EOF
 }
