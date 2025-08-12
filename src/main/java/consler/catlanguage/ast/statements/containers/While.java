@@ -1,22 +1,22 @@
 package consler.catlanguage.ast.statements.containers;
 
-import consler.catlanguage.ast.expressions.Expression;
 import consler.catlanguage.ast.statements.Statement;
+import consler.catlanguage.lexer.token.Token;
 
 import java.util.List;
 
 public class While extends Statement
 {
-    private final Expression condition;
+    private final List<Token> condition;
     private final List<Statement> body;
 
-    public While(Expression condition, List<Statement> body)
+    public While(List<Token> condition, List<Statement> body)
     {
         this.condition = condition;
         this.body = body;
 
     }
-    public Expression getCondition()
+    public List<Token> getCondition()
     {
         return condition;
 
@@ -24,6 +24,13 @@ public class While extends Statement
     public List<Statement> getBody()
     {
         return body;
+
+    }
+
+    @Override
+    public String toString()
+    {
+        return "While(" + getCondition() + "){\n" + getBody() + "\n}";
 
     }
 

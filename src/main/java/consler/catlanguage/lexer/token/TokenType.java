@@ -8,5 +8,6 @@ public enum TokenType
     STRING,
     SYMBOL,
     EVENT,
-    INDETATION
+    INDETATION,
+    EOL
 }

@@ -37,15 +37,16 @@ public class If extends Statement
         return thenBlock;
 
     }
+    public List<Statement> getElseBlock()
+    {
+        return elseBlock;
+
+    }
 
     @Override
     public String toString()
     {
         return "\n if(" + condition.toString() + "){ \n " + thenBlock.toString() + "endIf}";
     }
-    public List<Statement> getElseBlock()
-    {
-        return elseBlock;
 
-    }
 }

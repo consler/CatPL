@@ -10,7 +10,7 @@
 - -  [x] OnStart
 - -  [ ] OnClick
 - [x] If statements
-- [ ] While loops
+- [x] While loops
 - [ ] Tables
 - [ ] Functions
 - [ ] Graphical elements

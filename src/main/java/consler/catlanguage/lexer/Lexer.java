@@ -12,10 +12,10 @@ import java.util.regex.Pattern;
 public class Lexer
 {
     private static final String[] KEYWORDS = new String[]{
-            "createText",
             "log",
             "if",
             "else",
+            "elseif",
             "while"
     };
     private static final String[] EVENTS = new String[]{
@@ -27,11 +27,12 @@ public class Lexer
     private static final String STRING = "\"[^\"]*\"";
     private static final String SYMBOL = "[+\\-*/=():!><]";
     private static final String INDENTATION = "\\t|( {4})";
+    private static final String EOL = "\\r?\\n";
 
     public static List<Token> tokenize(String input)
     {
         List<Token> tokens = new ArrayList<>();
-        String[] lines = input.split("\n");
+        String[] lines = input.split(EOL);
 
         for (int line_count = 0; line_count < lines.length; line_count++)
         {
@@ -83,6 +84,8 @@ public class Lexer
                 }
 
             }
+
+            tokens.add(new Token(TokenType.EOL, "", line_count));
 
         }
 

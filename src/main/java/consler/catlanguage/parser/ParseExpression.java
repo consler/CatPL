@@ -13,9 +13,12 @@ public class ParseExpression
 
     public static Object parse(List<Token> expression_tokens)
     {
+        // Create a copy of the tokens to avoid modifying the original list
+        List<Token> tokens = new ArrayList<>(expression_tokens);
+
         boolean isString = false;
 
-        for (Token token : expression_tokens) //check whether contains a string
+        for (Token token : tokens) //check whether contains a string
         {
             if (token.getType() == TokenType.STRING)
             {
@@ -26,51 +29,51 @@ public class ParseExpression
 
         }
 
-        for (int i = 0; i < expression_tokens.size(); i++) //checking
+        for (int i = 0; i < tokens.size(); i++) //checking
         {
-            if(expression_tokens.get(i).getType() == TokenType.IDENTIFIER)
+            if(tokens.get(i).getType() == TokenType.IDENTIFIER)
             {
 
-                if (isString) expression_tokens.set(i, new Token(TokenType.STRING, Variable.getVariable( expression_tokens.get(i).getValue()),expression_tokens.get(i).getLine()));
-                else expression_tokens.set(i, new Token(TokenType.NUMBER, Variable.getVariable( expression_tokens.get(i).getValue()), expression_tokens.get(i).getLine())); // replacing variables with their value
-                // System.out.println("Replacing " + expression_tokens.get(i).getValue() + " with " + Variable.getVariable( expression_tokens.get(i).getValue()));
+                if (isString) tokens.set(i, new Token(TokenType.STRING, Variable.getVariable( tokens.get(i).getValue()), tokens.get(i).getLine()));
+                else tokens.set(i, new Token(TokenType.NUMBER, Variable.getVariable( tokens.get(i).getValue()), tokens.get(i).getLine())); // replacing variables with their value
+                // System.out.println("Replacing " + tokens.get(i).getValue() + " with " + Variable.getVariable( tokens.get(i).getValue()));
 
             }
-            else if (expression_tokens.get(i).getType() == TokenType.SYMBOL )
+            else if (tokens.get(i).getType() == TokenType.SYMBOL )
             {
-                if (isString && !( expression_tokens.get(i).getValue().equals("+") || expression_tokens.get(i).getValue().equals("(") || expression_tokens.get(i).getValue().equals(")") ))
+                if (isString && !( tokens.get(i).getValue().equals("+") || tokens.get(i).getValue().equals("(") || tokens.get(i).getValue().equals(")") ))
                 {
-                    throw new RuntimeException("Line: " + expression_tokens.get(i).getLine() +  ". A an unexpected symbol received, when trying to concatenate a string.");
+                    throw new RuntimeException("Line: " + tokens.get(i).getLine() +  ". A an unexpected symbol received, when trying to concatenate a string.");
 
                 }
                 else if(!isString && !(
-                        expression_tokens.get(i).getValue().equals("+") ||
-                                expression_tokens.get(i).getValue().equals("-")  ||
-                                expression_tokens.get(i).getValue().equals("*")  ||
-                                expression_tokens.get(i).getValue().equals("/") ||
-                                expression_tokens.get(i).getValue().equals("(") ||
-                                expression_tokens.get(i).getValue().equals(")")))
-                    throw new RuntimeException("Line: " + expression_tokens.get(i).getLine() +  ". An unexpected symbol received, when trying to calculate an expression: " + expression_tokens.get(i).getValue());
+                        tokens.get(i).getValue().equals("+") ||
+                                tokens.get(i).getValue().equals("-")  ||
+                                tokens.get(i).getValue().equals("*")  ||
+                                tokens.get(i).getValue().equals("/") ||
+                                tokens.get(i).getValue().equals("(") ||
+                                tokens.get(i).getValue().equals(")")))
+                    throw new RuntimeException("Line: " + tokens.get(i).getLine() +  ". An unexpected symbol received, when trying to calculate an expression: " + tokens.get(i).getValue());
 
 
             }
-            else if (expression_tokens.get(i).getType() == TokenType.KEYWORD || expression_tokens.get(i).getType() == TokenType.EVENT)
+            else if (tokens.get(i).getType() == TokenType.KEYWORD || tokens.get(i).getType() == TokenType.EVENT)
             {
-                throw new RuntimeException("Line: " + expression_tokens.get(i).getLine() +  ". An unexpected token type, when trying to calculate an expression");
+                throw new RuntimeException("Line: " + tokens.get(i).getLine() +  ". An unexpected token type, when trying to calculate an expression");
 
             }
 
         }
 
-        // System.out.println(expression_tokens);
+        // System.out.println(tokens);
 
         if(isString)
         {
-            return parseString(expression_tokens);
+            return parseString(tokens);
         }
         else
         {
-            float result = parseArithmeticExpression(expression_tokens);
+            float result = parseArithmeticExpression(tokens);
 
             if(result == (int) result)
             {

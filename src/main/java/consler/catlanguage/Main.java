@@ -8,8 +8,11 @@ import consler.catlanguage.lexer.token.Token;
 
 import java.util.List;
 
+
 public class Main
 {
+    public static boolean debug = false;
+
     public static void main(String[] args)
     {
         String input =
@@ -23,16 +26,21 @@ onStart:
     z=10/5
     log("not "+ z)
     answer = 1
-    if(answer == 2):
-        log("answers 1")
-    else:
-        log("answers not 1")
+    i=1
+    i = i+1
+    while(i<10):
+        if(i==5):
+            log("i is " + i)
+        else:
+            log(i)
+        i = i +1
+    log("i is " + i)
+
 
 """;
 
         List<Token> tokens = Lexer.tokenize(input);
         List<AstNode> ast = Parser.parse(tokens);
-        //System.out.println(ast);
         Start.start(ast);
 
 
