@@ -30,16 +30,15 @@ public class Main
             input = new StringBuilder(
 """
 onStart:
-    i=0
-    while(i<100):
-        if(i==99):
+    i = 0
+    while(i<10):
+        if(i==9):
             log("!!!")
         else:
             log(i)
         i = i +1
     log("i is " + i)
-"""
-            );
+""");
         }
         else
         {

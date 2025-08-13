@@ -28,7 +28,7 @@ public class Parser
         {
             Token token = tokens.get(currentIndex);
 
-            if (token.getType() != TokenType.EVENT) new ParsingError("EVENT is expected, but got '" + token.getValue());
+            if (token.getType() != TokenType.EVENT) new ParsingError("EVENT is expected, but got " + token.getValue() + " of " + token.getType());
 
             if (token.getValue().equals("onStart")) astNodes.add(parseOnStart());
             else if(token.getValue().equals("onClick")) new ParsingError("OnClick not implemented yet");
@@ -96,18 +96,24 @@ public class Parser
         {
             case "log" ->
             {
-                if (tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals("(")) return new Log(parseArguments(true));
-                else new ParsingError("A parenthesis is expected after a function call, but got: " + tokens.get(currentIndex).getValue());
+                if (tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals("("))
+                    return new Log(parseArguments(true));
+                else
+                    new ParsingError("A parenthesis is expected after a function call, but got: " + tokens.get(currentIndex).getValue());
             }
             case "if" ->
             {
-                if (tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals("(")) return parseIf();
-                else new ParsingError("A parenthesis is expected after a function call, but got: " + tokens.get(currentIndex).getValue());
+                if (tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals("("))
+                    return parseIf();
+                else
+                    new ParsingError("A parenthesis is expected after a function call, but got: " + tokens.get(currentIndex).getValue());
             }
             case "while" ->
             {
-                if (tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals("(")) return parseWhile();
-                else new ParsingError("A parenthesis is expected after a function call, but got: " + tokens.get(currentIndex).getValue());
+                if (tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals("("))
+                    return parseWhile();
+                else
+                    new ParsingError("A parenthesis is expected after a function call, but got: " + tokens.get(currentIndex).getValue());
             }
             default -> new ParsingError("Unexpected error because of an unknown function call: " + tokens.get(currentIndex).getValue() + ". Please report the error along with your code");
         }
@@ -120,23 +126,65 @@ public class Parser
 
         if(debug) System.out.println("Parsing assignment: " + identifier);
         currentIndex++;
-        if (isTokenEOLorEOF()) new ParsingError("Unexpected end of input.");
+        if (isTokenEOLorEOF())
+            new ParsingError("Unexpected end of input.");
 
-        if (!(tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals("="))) new ParsingError("An equals sign (=) is expected after an identifier, but got: " + tokens.get(currentIndex).getValue());
-
-        List<Token> expression_tokens = new ArrayList<>();
-        while (currentIndex < tokens.size())
+        if (tokens.get(currentIndex).getType() == TokenType.SYMBOL && (tokens.get(currentIndex).getValue().equals("="))) // for variables
         {
-            currentIndex++;
-            expression_tokens.add(tokens.get(currentIndex));
-            if(tokens.get(currentIndex+1).getType() == TokenType.EOL)
+            List<Token> expression_tokens = new ArrayList<>();
+            while (currentIndex < tokens.size())
             {
                 currentIndex++;
-                break;
+                expression_tokens.add(tokens.get(currentIndex));
+                if(tokens.get(currentIndex+1).getType() == TokenType.EOL)
+                {
+                    currentIndex++;
+                    break;
+                }
+                if(tokens.get(currentIndex + 1).getType() == TokenType.KEYWORD || tokens.get(currentIndex+ 1).getType() == TokenType.EVENT )
+                    new ParsingError("Unexpected token: " + tokens.get(currentIndex).getValue());
             }
-            if(tokens.get(currentIndex + 1).getType() == TokenType.KEYWORD || tokens.get(currentIndex+ 1).getType() == TokenType.EVENT ) new ParsingError("Unexpected token: " + tokens.get(currentIndex).getValue());
+            return new Assignment(identifier, expression_tokens);
         }
-        return new Assignment(identifier, expression_tokens);
+        else if(tokens.get(currentIndex).getType() == TokenType.SYMBOL && (tokens.get(currentIndex).getValue().equals("["))) // for tables
+        {
+            currentIndex++;
+            if(tokens.get(currentIndex).getType() == TokenType.SYMBOL && (tokens.get(currentIndex).getValue().equals("]")))
+            {
+                currentIndex++;
+                return new Assignment(identifier, null, null);
+            }
+            else if(tokens.get(currentIndex).getType() == TokenType.IDENTIFIER || tokens.get(currentIndex).getType() == TokenType.STRING || tokens.get(currentIndex).getType() == TokenType.NUMBER)
+            {
+                List<Token> index = parseTableArguments();
+                if(!(tokens.get(currentIndex).getType() == TokenType.SYMBOL && (tokens.get(currentIndex).getValue().equals("]"))))
+                    new ParsingError("A closing bracket is expected after a table index, but got: " + tokens.get(currentIndex).getValue());
+                currentIndex++; // ] -> =
+                if (!(tokens.get(currentIndex).getType() == TokenType.SYMBOL && (tokens.get(currentIndex).getValue().equals("="))))
+                    new ParsingError("An assignment token expected, but got: " + tokens.get(currentIndex).getValue());
+                List<Token> expression_tokens = new ArrayList<>();
+                while (currentIndex < tokens.size())
+                {
+                    currentIndex++;
+                    expression_tokens.add(tokens.get(currentIndex));
+                    if(tokens.get(currentIndex+1).getType() == TokenType.EOL)
+                    {
+                        currentIndex++;
+                        break;
+                    }
+                    if(tokens.get(currentIndex + 1).getType() == TokenType.KEYWORD || tokens.get(currentIndex+ 1).getType() == TokenType.EVENT )
+                        new ParsingError("Unexpected token: " + tokens.get(currentIndex).getValue());
+                }
+                return new Assignment(identifier, index, expression_tokens);
+
+            }
+            else
+                new ParsingError("A closing bracket is expected after a table index, but got: " + tokens.get(currentIndex).getValue());
+        }
+        else
+            new ParsingError("An assignment token expected, but got: " + tokens.get(currentIndex).getValue());
+
+        return null;
     }
 
     private static List<Token> parseArguments(boolean EOL)
@@ -149,13 +197,9 @@ public class Parser
         {
             currentIndex++;
             if(tokens.get(currentIndex).getValue().equals("("))
-            {
                 parenthesis_count++;
-            }
             else if(tokens.get(currentIndex).getValue().equals(")"))
-            {
                 parenthesis_count--;
-            }
             expression_tokens.add(tokens.get(currentIndex));
         }
         if(EOL) currentIndex++;
@@ -172,18 +216,12 @@ public class Parser
             if(token.getLine() == line)
             {
                 if(token.getType() == TokenType.INDETATION)
-                {
                     indentation_count++;
-                }
                 else
-                {
                     break;
-                }
             }
             else if(token.getLine() > line)
-            {
                 break;
-            }
         }
         return indentation_count;
     }
@@ -257,5 +295,17 @@ public class Parser
     private static boolean isTokenEOLorEOF()
     {
         return tokens.get(currentIndex).getType() == TokenType.EOL && tokens.get(currentIndex).getType() == TokenType.EOF;
+    }
+
+    private static List<Token> parseTableArguments()
+    {
+        List<Token> expression_tokens = new ArrayList<>();
+
+        while(!(tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals("]")))
+        {
+            expression_tokens.add(tokens.get(currentIndex));
+            currentIndex++;
+        }
+        return expression_tokens;
     }
 }

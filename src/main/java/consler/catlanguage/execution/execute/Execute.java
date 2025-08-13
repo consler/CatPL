@@ -21,11 +21,8 @@ public class Execute
             for (Statement statement : ((OnStart) event).getStatements())
             {
                 Execute.statement(statement);
-
             }
-
         }
-
     }
 
     public static void statement(Statement statement)
