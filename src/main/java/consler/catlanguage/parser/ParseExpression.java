@@ -29,6 +29,17 @@ public class ParseExpression
                 isString = true;
                 break;
             }
+            else if(token.getType() == TokenType.IDENTIFIER &&  Value.getIdentifierType(token.getValue()).equals("TABLE"))
+            {
+                String table_name = tokens.get(k).getValue();
+                List<Token> table_arguments_tokens = parseTableArguments(tokens, k);
+                Object computed_table_argument = parse(table_arguments_tokens);
+                if(Value.getType(Value.getIdentifier(table_name, computed_table_argument).toString()).equals("STRING"))
+                {
+                    isString = true;
+                    break;
+                }
+            }
             k++;
         }
 
@@ -36,36 +47,53 @@ public class ParseExpression
         {
             if(tokens.get(i).getType() == TokenType.IDENTIFIER)
             {
+                boolean is_table = false;
+                if(Value.getIdentifierType(tokens.get(i).getValue()).equals("TABLE"))
+                {
+                    is_table = true;
+                    String table_name = tokens.get(i).getValue();
+                    List<Token> table_arguments_tokens = parseTableArguments(tokens, i);
+                    Object computed_table_argument = parse(table_arguments_tokens);
+
+                    i++;
+                    tokens.remove(i);
+                    tokens.remove(i);
+                    for (Token whatever : table_arguments_tokens)
+                        tokens.remove(i);
+                    i--;
+
+                    if(isString)
+                        tokens.set(i, new Token(TokenType.STRING, Value.getIdentifier(table_name, computed_table_argument).toString(), tokens.get(i).getLine()));
+                    else if(Value.getType(Value.getIdentifier(table_name, computed_table_argument).toString()).equals("NUMBER"))
+                        tokens.set(i, new Token(TokenType.NUMBER, Value.getIdentifier(table_name, computed_table_argument).toString(), tokens.get(i).getLine()));
+                    else if(Value.getType(Value.getIdentifier(table_name, computed_table_argument).toString()).equals("TABLE"))
+                        tokens.set(i, new Token(TokenType.STRING, Value.getIdentifier(table_name, computed_table_argument).toString(), tokens.get(i).getLine()));
+                    else if(Value.getType(Value.getIdentifier(table_name, computed_table_argument).toString()).equals("NULL"))
+                        tokens.set(i, new Token(TokenType.STRING, Value.getIdentifier(table_name, computed_table_argument).toString(), tokens.get(i).getLine()));
+                    else if(Value.getType(Value.getIdentifier(table_name, computed_table_argument).toString()).equals("STRING"))
+                        new RuntimeError(tokens.get(i).getLine(), "A string received when trying to evaluate an expression: " + tokens.get(i).getValue());
+                }
+
                 if (isString)
                 {
-                    tokens.set(i, new Token(TokenType.STRING, Value.getIdentifier( tokens.get(i).getValue()).toString(), tokens.get(i).getLine()));
+                    if(is_table)
+                    {
+                        tokens.set(i, new Token(TokenType.STRING, tokens.get(i).getValue(), tokens.get(i).getLine()));
+                    }
+                    else
+                    {
+                        tokens.set(i, new Token(TokenType.STRING, Value.getIdentifier( tokens.get(i).getValue()).toString(), tokens.get(i).getLine()));
+                    }
                 }
                 else
                 {
-                    if(Value.getIdentifierType(tokens.get(i).getValue()).equals("TABLE"))
-                    {
-                        String table_name = tokens.get(i).getValue();
-                        List<Token> table_arguments_tokens = parseTableArguments(tokens, i);
-                        Object computed_table_argument = parse(table_arguments_tokens);
-
-                        i++;
-                        tokens.remove(i);
-                        tokens.remove(i);
-                        for(Token whatever : table_arguments_tokens)
-                            tokens.remove(i);
-                        i--;
-
-                        tokens.set(i, new Token(TokenType.NUMBER, Value.getIdentifier(table_name, computed_table_argument).toString(), tokens.get(i).getLine()));
-                        System.out.println(tokens);
-                    }
-                    else
-                        tokens.set(i, new Token(TokenType.NUMBER, String.valueOf( Value.getIdentifier( tokens.get(i).getValue())), tokens.get(i).getLine())); // replacing variables with their value
+                     tokens.set(i, new Token(TokenType.NUMBER, String.valueOf( Value.getIdentifier( tokens.get(i).getValue())), tokens.get(i).getLine())); // replacing variables with their value
                 }
             }
             else if (tokens.get(i).getType() == TokenType.SYMBOL )
             {
                 if (isString && !( tokens.get(i).getValue().equals("+") || tokens.get(i).getValue().equals("(") || tokens.get(i).getValue().equals(")") ))
-                    throw new RuntimeException("Line: " + tokens.get(i).getLine() +  ". A an unexpected symbol received, when trying to concatenate a string.");
+                    throw new RuntimeException("Line: " + tokens.get(i).getLine() +  ". A an unexpected symbol received, when trying to concatenate a string: " + tokens.get(i).getValue());
                 else if(!isString && !(
                         tokens.get(i).getValue().equals("+") ||
                                 tokens.get(i).getValue().equals("-")  ||
@@ -73,7 +101,7 @@ public class ParseExpression
                                 tokens.get(i).getValue().equals("/") ||
                                 tokens.get(i).getValue().equals("(") ||
                                 tokens.get(i).getValue().equals(")")))
-                    new ParsingError("An unexpected symbol received, when trying to calculate an expression: " + tokens.get(i).getValue());
+                    new RuntimeError(tokens.get(i).getLine(), "An unexpected symbol received, when trying to calculate an expression: " + tokens.get(i).getValue());
             }
             else if (tokens.get(i).getType() == TokenType.KEYWORD || tokens.get(i).getType() == TokenType.EVENT)
                 throw new RuntimeException("Line: " + tokens.get(i).getLine() +  ". An unexpected token type, when trying to calculate an expression");
@@ -321,7 +349,7 @@ public class ParseExpression
             }
         }
 
-        if (stack.size() != 1) throw new RuntimeException("Line: " + rpnTokens.getFirst().getLine() + ". Invalid RPN expression: stack should contain exactly one value");
+        if (stack.size() != 1) throw new RuntimeException("Line: " + rpnTokens.getFirst().getLine() + ". Invalid expression");
 
         return stack.pop();
     }
@@ -338,5 +366,10 @@ public class ParseExpression
         }
         return expression_tokens;
     }
+
+//    private static parseTable(List<Token> tokens, int currentIndex)
+//    {
+//
+//    }
 
 }

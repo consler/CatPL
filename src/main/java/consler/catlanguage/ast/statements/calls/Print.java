@@ -5,11 +5,11 @@ import consler.catlanguage.lexer.token.Token;
 
 import java.util.List;
 
-public class Log extends Call
+public class Print extends Call
 {
     private final List<Token> expression;
 
-    public Log(List<Token> expression)
+    public Print(List<Token> expression)
     {
         this.expression = expression;
     }
@@ -22,7 +22,6 @@ public class Log extends Call
     @Override
     public String toString()
     {
-        return "\n Log: " + expression.toString();
+        return "\n Print: " + expression.toString();
     }
-
 }

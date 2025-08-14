@@ -5,6 +5,7 @@ import consler.catlanguage.ast.events.OnStart;
 import consler.catlanguage.ast.statements.Assignment;
 import consler.catlanguage.ast.statements.Statement;
 import consler.catlanguage.ast.statements.calls.Log;
+import consler.catlanguage.ast.statements.calls.Print;
 import consler.catlanguage.ast.statements.containers.If;
 import consler.catlanguage.ast.statements.containers.While;
 import consler.catlanguage.lexer.token.Token;
@@ -98,6 +99,13 @@ public class Parser
             {
                 if (tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals("("))
                     return new Log(parseArguments(true));
+                else
+                    new ParsingError("A parenthesis is expected after a function call, but got: " + tokens.get(currentIndex).getValue());
+            }
+            case "print" ->
+            {
+                if (tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals("("))
+                    return new Print(parseArguments(true));
                 else
                     new ParsingError("A parenthesis is expected after a function call, but got: " + tokens.get(currentIndex).getValue());
             }

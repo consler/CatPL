@@ -1,5 +1,5 @@
 # CatPL
-**Easy to use programming language, designed to make cross-platform graphical applications for Windows, Linux, Mac, BSD and Android.**
+**Easy to use programming language, designed to make cross-platform graphical applications for Windows, Linux, Mac, iOS and Android.**
 
 ### Alpha features:
 - [x] Basic arithmetics — +, -, *, /
@@ -11,7 +11,7 @@
 - -  [ ] OnClick
 - [x] If statements
 - [x] While loops
-- [ ] Tables
+- [x] Tables
 - [ ] Functions
 - [ ] Graphical elements
 - [ ] Individual scenes
@@ -19,14 +19,13 @@
 ### Example syntax:
 ```
 onStart:
-    x = 7
-    y = 12 + 4/2
-    log("hmm what could be the answer??")
-
-onStart:
-    z=10
-    log("not "+ z)
-    answer = x / y
-    if(x / y == 0.5):
-        log("answer is " + answer)
+    print("Hello world!")
+    i=0
+    table[]
+    
+    while(i<10):
+        i=i+1
+        table[i] = "i is "  + i
+        
+    print(table[8])
 ```

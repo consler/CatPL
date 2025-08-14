@@ -16,7 +16,8 @@ public class Lexer
             "if",
             "else",
             "elseif",
-            "while"
+            "while",
+            "print"
     };
     private static final String[] EVENTS = new String[]{
             "onStart",

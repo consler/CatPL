@@ -67,7 +67,9 @@ public class Value
     public static String getIdentifierType(String name)
     {
         if (!identifiers.containsKey(name))
+        {
             new ParsingError("Not a variable: " + name);
+        }
 
         if(identifiers.get(name) instanceof HashMap<?,?>)
             return "TABLE";
@@ -79,5 +81,19 @@ public class Value
             return "NULL";
         else
             throw new RuntimeException("Of unexpected type " + identifiers.get(name) + " : " + name);
+    }
+
+    public static Object getType(Object value)
+    {
+        if(value instanceof HashMap<?,?>)
+            return "TABLE";
+        else if(value instanceof Integer || value instanceof Double)
+            return "NUMBER";
+        else if(value instanceof String)
+            return "STRING";
+        else if(value == null)
+            return "NULL";
+        else
+            throw new RuntimeException("Of unexpected type " + value);
     }
 }

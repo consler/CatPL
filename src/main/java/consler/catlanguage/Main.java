@@ -13,7 +13,7 @@ import java.util.List;
 public class Main
 {
     public static boolean test = true;
-    public static boolean debug = false;
+    public static boolean debug = true;
 
     public static void main(String[] args)
     {
@@ -30,14 +30,15 @@ public class Main
             input = new StringBuilder(
 """
 onStart:
-    i = 0
+    print("Hello world!")
+    i=0
+    table[]
+    
     while(i<10):
-        if(i==9):
-            log("!!!")
-        else:
-            log(i)
-        i = i +1
-    log("i is " + i)
+        i=i+1
+        table[i] = "i is "  + i
+        
+    print(table[8])
 """);
         }
         else
@@ -48,9 +49,8 @@ onStart:
                 BufferedReader br = new BufferedReader(fr);
                 String line;
                 while ((line = br.readLine()) != null)
-                {
                     input.append(line).append("\n");
-                }
+
                 br.close();
             }
             catch (FileNotFoundException e)
