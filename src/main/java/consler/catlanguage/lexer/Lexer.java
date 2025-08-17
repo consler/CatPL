@@ -28,6 +28,7 @@ public class Lexer
     private static final String STRING = "\"[^\"]*\"";
     private static final String SYMBOL = "[+\\-*/=.,():!><\\[\\]]";
     private static final String INDENTATION = "\\t|( {4})";
+    private static final String TABLE = "\\{([^}]*)\\}";
     private static final String EOL = "\\r?\\n";
 
     public static List<Token> tokenize(String input)
@@ -41,7 +42,7 @@ public class Lexer
 
             if (line.isEmpty()) continue;
 
-            Pattern pattern = Pattern.compile(IDENTIFIER + "|" + NUMBER + "|" + STRING + "|" + SYMBOL + "|" + INDENTATION);
+            Pattern pattern = Pattern.compile(IDENTIFIER + "|" + NUMBER + "|" + STRING + "|" + SYMBOL + "|" + INDENTATION + "|" + TABLE);
             Matcher matcher = pattern.matcher(line);
 
             while (matcher.find())
@@ -68,6 +69,10 @@ public class Lexer
                 {
                     tokens.add(new Token(TokenType.STRING, token_value.substring(1, token_value.length() - 1), line_count));
                 }
+                else if(token_value.matches(TABLE))
+                {
+                    tokens.add(new Token(TokenType.TABLE, token_value, line_count));
+                }
                 else if (token_value.matches(SYMBOL))
                 {
                     tokens.add(new Token(TokenType.SYMBOL, token_value, line_count));
@@ -77,9 +82,9 @@ public class Lexer
                     tokens.add(new Token(TokenType.INDETATION, token_value, line_count));
                 }
             }
-            tokens.add(new Token(TokenType.EOL, "", line_count));
+            tokens.add(new Token(TokenType.EOL, "End of line", line_count));
         }
-        tokens.add(new Token(TokenType.EOF, "", -1));
+        tokens.add(new Token(TokenType.EOF, "End of file", lines.length));
         return tokens;
     }
 

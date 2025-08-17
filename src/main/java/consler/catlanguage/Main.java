@@ -13,7 +13,7 @@ import java.util.List;
 public class Main
 {
     public static boolean test = true;
-    public static boolean debug = false;
+    public static boolean debug = true;
 
     public static void main(String[] args)
     {
@@ -30,9 +30,8 @@ public class Main
             input = new StringBuilder(
 """
 onStart("code below runs on start"):
-    table["no"] = 12
-    bable["ho"] = table
-    print(bable["ho"])
+    table[12 ] = "hejsan"
+    print(table[12])
 """);
         }
         else

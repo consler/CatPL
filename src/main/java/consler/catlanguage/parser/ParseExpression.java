@@ -17,7 +17,7 @@ public class ParseExpression
 
         List<Token> tokens = new ArrayList<>(expression_tokens);
 
-        String TYPE = "";
+        String TYPE = "NULL";
 
         int t = 0;
         while(t < tokens.size()) // set the type
@@ -38,6 +38,10 @@ public class ParseExpression
             {
                 TYPE = "NUMBER";
             }
+            else if(token.getType() == TokenType.TABLE)
+            {
+                TYPE = "TABLE";
+            }
             else if (token.getType() == TokenType.IDENTIFIER)
             {
                 if(Value.getIdentifierType(token.getValue()).equals("NUMBER"))
@@ -57,11 +61,12 @@ public class ParseExpression
                 {
                     if( !(getToken(tokens, t+1).getType() == TokenType.SYMBOL && getToken(tokens, t+1).getValue().equals("[")))
                     {
-                        TYPE = "STRING";
+                        TYPE = "TABLE";
                     }
                     else if(Value.getType( Value.getIdentifier(token.getValue(), parseTableArguments(tokens, t))).equals("STRING"))
                     {
                         TYPE = "STRING";
+                        break;
                     }
                 }
             }
@@ -74,9 +79,9 @@ public class ParseExpression
             {
                 if(Value.getIdentifierType(tokens.get(i).getValue()).equals("TABLE"))
                 {
-                    if(!( getToken(tokens, i+1).getType() == TokenType.SYMBOL && getToken(tokens, i+1).getValue().equals("[")))
+                    if(TYPE.equals("TABLE"))
                     {
-                        tokens.set(i, new Token(TokenType.STRING, Value.getIdentifier(tokens.get(i).getValue(), parseTableArguments(tokens, i)).toString(), tokens.get(i).getLine()));
+                        tokens.set(i, new Token(TokenType.TABLE, Value.getIdentifier(tokens.get(i).getValue(), parseTableArguments(tokens, i)).toString(), tokens.get(i).getLine()));
                     }
                     else
                     {
@@ -104,6 +109,8 @@ public class ParseExpression
                             tokens.set(i, new Token(TokenType.STRING, Value.getIdentifier(table_name, table_arguments).toString(), tokens.get(i).getLine()));
                         else if(Value.getType(Value.getIdentifier(table_name, table_arguments).toString()).equals("NULL"))
                             tokens.set(i, new Token(TokenType.STRING, Value.getIdentifier(table_name, table_arguments).toString(), tokens.get(i).getLine()));
+                        else
+                            new RuntimeError(getToken(tokens, i).getLine(), "Unexpected string");
                     }
                 }
                 else
@@ -112,20 +119,19 @@ public class ParseExpression
                     {
                         tokens.set(i, new Token(TokenType.STRING, Value.getIdentifier( getToken(tokens, i).getValue()).toString(), tokens.get(i).getLine()));
                     }
-                    else if(Value.getType(getToken(tokens, i)).equals("NUMBER"))
+                    else if(Value.getIdentifierType(getToken(tokens, i).getValue()).equals("NUMBER"))
                     {
-                        tokens.set(i, new Token(TokenType.STRING, Value.getIdentifier( getToken(tokens, i).getValue()).toString(), tokens.get(i).getLine()));
+                        tokens.set(i, new Token(TokenType.NUMBER, Value.getIdentifier( getToken(tokens, i).getValue()).toString(), tokens.get(i).getLine()));
                     }
-                    else if(Value.getType(getToken(tokens, i)).equals("NULL"))
+                    else if(Value.getIdentifierType(getToken(tokens, i).getValue()).equals("NULL"))
                     {
                         tokens.set(i, new Token(TokenType.NULL, Value.getIdentifier( getToken(tokens, i).getValue()).toString(), tokens.get(i).getLine()));
                     }
                     else
                     {
-                        new RuntimeError(getToken(tokens, i).getLine(), "Unexpected type");
+                        new RuntimeError(getToken(tokens, i).getLine(), "Unexpected type: " + Value.getIdentifierType(getToken(tokens, i).getValue()));
                     }
                 }
-
 
             }
             else if (tokens.get(i).getType() == TokenType.SYMBOL )
@@ -157,6 +163,10 @@ public class ParseExpression
 
         if(TYPE.equals("STRING"))
             return parseString(tokens);
+        else if(TYPE.equals("TABLE"))
+        {
+            return tokens;
+        }
         else
         {
             float result = parseArithmeticExpression(tokens);
@@ -415,14 +425,14 @@ public class ParseExpression
         currentIndex++; //( -> [
         while(currentIndex < tokens.size() && tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals("["))
         {
-            currentIndex++;
+            currentIndex++; // [ -> token
             while(!(tokens.get(currentIndex).getType() == TokenType.SYMBOL && tokens.get(currentIndex).getValue().equals("]")))
             {
                 expression_tokens.add(tokens.get(currentIndex));
                 currentIndex++;
             }
             arguments.add(ParseExpression.parse(expression_tokens));
-            currentIndex++;
+            currentIndex++; // ] -> [
         }
 
         return arguments;

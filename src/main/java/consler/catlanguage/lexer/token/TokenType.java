@@ -11,5 +11,6 @@ public enum TokenType
     INDETATION,
     EOL,
     EOF,
-    NULL
+    NULL,
+    TABLE
 }

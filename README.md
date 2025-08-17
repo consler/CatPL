@@ -21,7 +21,7 @@
 
 ### Example syntax:
 ```
-onStart:
+onStart():
     print("Hello world!")
     i = 0
     table[]

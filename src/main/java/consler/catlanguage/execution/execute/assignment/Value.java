@@ -3,6 +3,7 @@ package consler.catlanguage.execution.execute.assignment;
 import consler.catlanguage.parser.ParsingError;
 import consler.catlanguage.parser.RuntimeError;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,7 @@ public class Value
 
         for (Object index : indexes)
         {
-            if(getType(value) != "TABLE")
+            if(!getType(value).equals("TABLE"))
                 new RuntimeError(0, "Not a table: " + value);
 
             if(!( (HashMap<Object, Object>) value).containsKey(index))
@@ -90,11 +91,13 @@ public class Value
             return "STRING";
         else if(identifiers.get(name) == null)
             return "NULL";
-        else
-            throw new RuntimeException("Of unexpected type " + identifiers.get(name) + " : " + name);
+        else if(identifiers.get(name) instanceof ArrayList)
+            return "TABLE";
+
+        throw new RuntimeException("Of unexpected type " + name + ": " + identifiers.get(name).getClass());
     }
 
-    public static Object getType(Object value)
+    public static String getType(Object value)
     {
         if(value instanceof HashMap<?,?>)
             return "TABLE";
@@ -104,8 +107,8 @@ public class Value
             return "STRING";
         else if(value == null)
             return "NULL";
-        else
-            throw new RuntimeException("Of unexpected type " + value);
+
+        throw new RuntimeException("Of unexpected type " + value + ": " + value.getClass());
     }
 
     @SuppressWarnings("unchecked")
