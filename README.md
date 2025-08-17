@@ -12,7 +12,10 @@
 - [x] If statements
 - [x] While loops
 - [x] Tables
+- [ ] For loops
 - [ ] Functions
+- [ ] Load other catpl files
+- [ ] Java API
 - [ ] Graphical elements
 - [ ] Individual scenes
 
@@ -20,7 +23,7 @@
 ```
 onStart:
     print("Hello world!")
-    i=0
+    i = 0
     table[]
     
     while(i<10):

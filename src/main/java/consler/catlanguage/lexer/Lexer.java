@@ -26,7 +26,7 @@ public class Lexer
     private static final String IDENTIFIER = "[a-zA-Z_][a-zA-Z0-9_]*";
     private static final String NUMBER = "-?\\d+(\\.\\d+)?";
     private static final String STRING = "\"[^\"]*\"";
-    private static final String SYMBOL = "[+\\-*/=():!><\\[\\]]";
+    private static final String SYMBOL = "[+\\-*/=.,():!><\\[\\]]";
     private static final String INDENTATION = "\\t|( {4})";
     private static final String EOL = "\\r?\\n";
 
@@ -99,7 +99,6 @@ public class Lexer
         {
             if (event.equals(tokenValue))
                 return true;
-
         }
         return false;
     }

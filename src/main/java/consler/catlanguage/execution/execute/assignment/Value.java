@@ -1,8 +1,10 @@
 package consler.catlanguage.execution.execute.assignment;
 
 import consler.catlanguage.parser.ParsingError;
+import consler.catlanguage.parser.RuntimeError;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Value
@@ -25,55 +27,64 @@ public class Value
         }
     }
 
-    @SuppressWarnings("unchecked")
+
     public static Object getIdentifier(String name)
     {
         if (!identifiers.containsKey(name))
             throw new RuntimeException("Not an identifier: " + name);
-        if(identifiers.get(name) instanceof HashMap<?,?>)
-        {
-            StringBuilder sb =  new StringBuilder();
-            sb.append("{");
 
-            Map<Object, Object> table = (Map<Object, Object>) identifiers.get(name);
-            for (Object key : table.keySet())
-                sb.append(key).append("=").append(table.get(key)).append(", ");
-
-            return sb.substring(0, sb.length()-2) + "}";
-        }
+//        if(identifiers.get(name) instanceof HashMap<?,?>)
+//        {
+//            StringBuilder sb =  new StringBuilder();
+//            sb.append("{");
+//
+//            Map<Object, Object> table = (Map<Object, Object>) identifiers.get(name);
+//            for (Object key : table.keySet())
+//                sb.append(key).append("=").append(table.get(key)).append(", ");
+//
+//            return sb.substring(0, sb.length()-2) + "}";
+//        }
         else if(identifiers.get(name) == null)
             return null;
         else
-            return identifiers.get(name).toString();
+            return identifiers.get(name);
     }
+
     @SuppressWarnings("unchecked")
 
-    public static Object getIdentifier(String name, Object index)
+    public static Object getIdentifier(String name, List<Object> indexes)
     {
         if (!identifiers.containsKey(name))
-            new ParsingError("Not a variable: " + name);
+            new ParsingError("Not an identifier: " + name);
 
-        if(!(identifiers.get(name) instanceof HashMap<?,?>))
+        if(! getIdentifierType(name).equals("TABLE"))
             new ParsingError("Not a table: " + name);
 
-        Map<Object, Object> table = (Map<Object, Object>) identifiers.get(name);
+        Object value = identifiers.get(name);
 
-        if(!table.containsKey(index))
-            new ParsingError("Not such key as " + index + " in " + name);
+        for (Object index : indexes)
+        {
+            if(getType(value) != "TABLE")
+                new RuntimeError(0, "Not a table: " + value);
 
-        return ((Map<Object, Object>) identifiers.get(name)).get(index);
+            if(!( (HashMap<Object, Object>) value).containsKey(index))
+                new RuntimeError(0, "Not such key as " + index + " in " + name);
+
+            value = ((HashMap<Object, Object>) value).get(index);
+        }
+
+        return value;
+
     }
 
     public static String getIdentifierType(String name)
     {
         if (!identifiers.containsKey(name))
-        {
-            new ParsingError("Not a variable: " + name);
-        }
+            return "NULL";
 
         if(identifiers.get(name) instanceof HashMap<?,?>)
             return "TABLE";
-        else if(identifiers.get(name) instanceof Integer || identifiers.get(name) instanceof Double)
+        else if(identifiers.get(name) instanceof Integer || identifiers.get(name) instanceof Float)
             return "NUMBER";
         else if(identifiers.get(name) instanceof String)
             return "STRING";
@@ -95,5 +106,25 @@ public class Value
             return "NULL";
         else
             throw new RuntimeException("Of unexpected type " + value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Object retrieveFromTable(Object identifier, List<Object> arguments)
+    {
+        if(! getIdentifierType(identifier.toString()).equals("TABLE"))
+            new RuntimeError(0, "Not a table");
+
+        HashMap<Object, Object> table = (HashMap<Object, Object>) getIdentifier(identifier.toString());
+
+        Object value = null;
+
+        for (Object argument : arguments)
+        {
+            if (table.get(argument) instanceof HashMap<?, ?>)
+                table = (HashMap<Object, Object>) table.get(argument);
+            else
+                value = table.get(argument);
+        }
+        return value;
     }
 }

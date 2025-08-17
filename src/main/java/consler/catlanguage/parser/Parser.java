@@ -42,7 +42,11 @@ public class Parser
     private static AstNode parseOnStart()
     {
         if(debug) System.out.println("Parsing onStart");
-        currentIndex++; // onStart -> :
+
+        currentIndex++; // onStart -> (
+        parseArguments(false);
+
+        currentIndex++; // ) -> :
         List<Statement> statements = new ArrayList<>();
 
         if(isTokenNotColon()) new ParsingError("A colon (:) is expected after an event declaration, but got: " + tokens.get(currentIndex).getValue());

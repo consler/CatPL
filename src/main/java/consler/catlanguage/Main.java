@@ -13,13 +13,13 @@ import java.util.List;
 public class Main
 {
     public static boolean test = true;
-    public static boolean debug = true;
+    public static boolean debug = false;
 
     public static void main(String[] args)
     {
         if(args.length > 1)
         {
-            System.err.println("Incorrect usage. Usage - catpl.jar file.cpl");
+            System.err.println("Incorrect usage. Usage - catpl.jar -jar file.cpl");
             System.exit(1);
         }
 
@@ -29,16 +29,10 @@ public class Main
         {
             input = new StringBuilder(
 """
-onStart:
-    print("Hello world!")
-    i=0
-    table[]
-    
-    while(i<10):
-        i=i+1
-        table[i] = "i is "  + i
-        
-    print(table[8])
+onStart("code below runs on start"):
+    table["no"] = 12
+    bable["ho"] = table
+    print(bable["ho"])
 """);
         }
         else

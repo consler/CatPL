@@ -10,5 +10,6 @@ public enum TokenType
     EVENT,
     INDETATION,
     EOL,
-    EOF
+    EOF,
+    NULL
 }
